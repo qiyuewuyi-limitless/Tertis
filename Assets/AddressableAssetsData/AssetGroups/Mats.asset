@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Mats
+  m_EditorClassIdentifier: 
+  m_GroupName: Mats
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 26dca4ef003a38d409bfab8d9e05cf41
+  m_SerializeEntries:
+  - m_GUID: 89336b1387e0683479926d16567facdc
+    m_Address: Assets/mats/Transparent.mat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 3b81b58fe4a37bc47ba06043e7d39a05, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 1d82b3f58f9bf4b4687229932e61418a, type: 2}
+    - {fileID: 11400000, guid: 8a3d2d77fb3d93d40adc6dcb31fcca82, type: 2}
