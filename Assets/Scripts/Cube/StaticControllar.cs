@@ -26,16 +26,12 @@ public class StaticControllar : CubeControllar
     {
         GameManager._instance.RefreshIndex(transform);
 
-        transform.localPosition += Vector3.forward;
-        //transform.localPosition += Vector3.back;
-        //transform.position += Vector3.back;
+        transform.localPosition += down;
         bool pass = GameManager._instance.CheckBoundary(transform);
         if (!pass)
         {
-            transform.localPosition -= Vector3.forward;
-            //transform.localPosition -= Vector3.back;
-            //transform.position -= Vector3.back;
-            GameManager._instance.ReachBoundary(transform);
+            transform.localPosition -= down;
+            GameManager._instance.ReachBoundaryToStatic(gameObject);
         }
 
         GameManager._instance.UpdateIndex(transform);

@@ -9,7 +9,7 @@ namespace Assets.scripts
         const int width = 12; // 列宽
         const int height = 22; // 行高
         const int size = 1; // 单位尺寸
-        const int maxHeight = 4; //允许的最大高度
+        const int maxHeight = 16; //允许的最大高度
         public float autoDownTime = 0.3f; //方块自动下落时间
         public Transform offestTransform; //旋转偏移量
         private Transform boundary; // 占位作用
@@ -54,25 +54,17 @@ namespace Assets.scripts
         }
         public void ReachBoundary(Transform transform)
         {
-            if (this.rows[maxHeight].transform.childCount != 0)
-            {
-                CleanTable();
-                item = itemGenerator.GeneratorCube();
-                itemControllar.SetUser(item);
-                return;
-            }
-
-            List<int> rows = new();
+            List<int> rowList = new();
             List<Transform> childs = new();
             foreach (Transform child in transform)
             {
                 GetInfo(child, out int row, out int column);
                 stateTable[row, column] = child.transform;
-                rows.Add(row);
+                rowList.Add(row);
                 childs.Add(child);
             }
-            for (int i = 0; i < rows.Count; i++)
-                childs[i].parent = this.rows[rows[i]].transform;
+            for (int i = 0; i < rowList.Count; i++)
+                childs[i].parent = this.rows[rowList[i]].transform;
 
             if (item.transform == transform)
             {
@@ -80,6 +72,27 @@ namespace Assets.scripts
                 itemControllar.SetUser(item);
             }
             FindFullRows();
+        }
+        public void ReachBoundaryToStatic(GameObject rowGameObject)
+        {
+            int rowNumber = rows.IndexOf(rowGameObject);
+            if(rowNumber >= maxHeight)
+                CleanRows();
+
+            List<int> rowList = new();
+            List<Transform> childs = new();
+            foreach (Transform child in rowGameObject.transform)
+            {
+                GetInfo(child, out int row, out int column);
+                stateTable[row, column] = child.transform;
+                rowList.Add(row);
+                childs.Add(child);
+            }
+            for (int i = 0; i < rowList.Count; i++)
+                childs[i].parent = this.rows[rowList[i]].transform;
+
+            FindFullRows();
+
         }
         private void FindFullRows()
         {
@@ -105,7 +118,6 @@ namespace Assets.scripts
         }
         private void GetInfo(Transform transform, out int row, out int column)
         {
-            //string info = pointDict[transform.position];
             string info = pointDict[GetRealtivePosition(transform)];
             string[] infos = info.Split(" ");
             List<int> indexList = new List<int>();
@@ -132,23 +144,17 @@ namespace Assets.scripts
                 stateTable[row, column] = null;
             }
         }
-        private void CleanTable()
+        private void CleanRows()
         {
             for (int i = 1; i < height - 1; i++)
-                for (int j = 1; j < width - 1; j++)
-                {
-                    if (stateTable[i, j] != null)
-                        Destroy(stateTable[i, j].gameObject);
-
-                    stateTable[i, j] = null;
-                }
+                foreach (Transform child in rows[i].transform)
+                    Destroy(child.gameObject);
         }
         #endregion
 
         private void InitialParameter()
         {
             offestTransform = transform;
-            //headPoint = transform.position;
             headPoint = transform.localPosition;
 
             for (int i = 0; i < height - 1; i++)

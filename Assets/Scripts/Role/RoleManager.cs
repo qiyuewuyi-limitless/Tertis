@@ -7,9 +7,6 @@ public class RoleManager : MonoBehaviour
 {
     public static RoleManager _instance;
 
-    /** Start阶段的role必须信息 */
-    private Vector3 targetZero;
-
     /** Battle阶段的role必须信息 */
     public List<EnemyControllar> enemys;
 
@@ -24,21 +21,23 @@ public class RoleManager : MonoBehaviour
         Initial();
     }
 
-    public void HandleFullRow(GameObject row)
+    public void HandleFullRow(GameObject rowGameObject)
     {
         List<Transform> roles = new();
-
-        foreach (Transform child in row.transform) //child为方块
+        int counter = 0;
+        foreach (Transform child in rowGameObject.transform)
             if (child.childCount != 0)
                 roles.Add(child.GetChild(0));
 
-        roles.Sort(new ComparerPositionX());
-
         foreach (Transform role in roles)
         {
-            bool trigger = roles.IndexOf(role) == roles.Count - 1;
-            Vector3 target = new(targetZero.x, role.position.y, role.position.z);
-            role.GetComponent<RoleControllar>().EnableStartStage(target, trigger); //激活角色
+            role.parent = transform;
+            role.GetComponent<RoleControllar>().EnableAgent(delegate
+            {
+                counter++;
+                if (counter == roles.Count)
+                    RemoveCubs(rowGameObject.transform);
+            }); //激活角色
         }
     }
     public void RemoveCubs(Transform ancestor)
@@ -64,7 +63,6 @@ public class RoleManager : MonoBehaviour
 
     private void Initial()
     {
-        targetZero = GameObject.Find("StartTarget").transform.position;
         enemys = new();
         player = GameObject.Find("Canvas").transform.Find("Player").Find("Text").GetComponent<TextMeshProUGUI>();
         enemy = GameObject.Find("Canvas").transform.Find("Enemy").Find("Text").GetComponent<TextMeshProUGUI>();

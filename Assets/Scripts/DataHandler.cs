@@ -29,27 +29,6 @@ public class Vector3EqualityComparer : IEqualityComparer<Vector3>
     }
 }
 #endregion
-
-#region ◊‘∂®“Â≈≈–Ú
-public class ComparerPositionX : IComparer<Transform>
-{
-    public int Compare(Transform x, Transform y)
-    {
-        int res;
-        Vector3 positionX, positionY;
-
-        positionX = x.position;
-        positionY = y.position;
-
-        if (positionX.x >= positionY.x)
-            res = -1;
-        else
-            res = 1;
-
-        return res;
-    }
-}
-#endregion
 public class DataHandler
 {
     public static int HandleStringWithInteger(String text)

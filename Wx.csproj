@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{03A6F1A6-9A41-5B01-98B5-789E04C67876}</ProjectGuid>
+    <ProjectGuid>{438898EE-FF7F-9D68-B7D8-9D142060A03D}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Wx</AssemblyName>

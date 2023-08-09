@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{D09BDE35-E5A7-DA2A-E27A-E3931D144E4A}</ProjectGuid>
+    <ProjectGuid>{3C9CEA53-B357-3462-3EE1-C55F87342D73}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -909,11 +909,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Wx.csproj">
-      <Project>{03A6F1A6-9A41-5B01-98B5-789E04C67876}</Project>
+      <Project>{438898EE-FF7F-9D68-B7D8-9D142060A03D}</Project>
       <Name>Wx</Name>
     </ProjectReference>
     <ProjectReference Include="WxEditor.csproj">
-      <Project>{7429E5F9-FBE6-3C47-5ED3-65A88A2DD20F}</Project>
+      <Project>{D79108B1-A8E2-B843-5C83-F36EA979172C}</Project>
       <Name>WxEditor</Name>
     </ProjectReference>
   </ItemGroup>

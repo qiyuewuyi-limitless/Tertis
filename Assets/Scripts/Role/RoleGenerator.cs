@@ -18,7 +18,7 @@ public class RoleGenerator : MonoBehaviour
     private void FixedUpdate()
     {
         generatorTimer += Time.fixedDeltaTime;
-        if(generatorTimer >= generatorTime && enemyCounts > 0)
+        if (generatorTimer >= generatorTime && enemyCounts > 0)
         {
             generatorTimer = 0;
             GeneratorRole(1, enemyBirthplace); // 1表示敌方单位

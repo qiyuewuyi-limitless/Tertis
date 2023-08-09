@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 namespace Assets.scripts
 {
@@ -12,6 +13,11 @@ namespace Assets.scripts
         private Material transparentMaterial;
         private GameObject shadow;
 
+        /** x~z坐标系 */
+        protected Vector3 left = Vector3.left;
+        protected Vector3 right = Vector3.right;
+        protected Vector3 down = Vector3.back;
+
         private void Awake()
         {
             downTime = GameManager._instance.autoDownTime;
@@ -19,9 +25,10 @@ namespace Assets.scripts
 
             TouchRegistrar.TouchLeft += Left;
             TouchRegistrar.TouchRight += Right;
-            TouchRegistrar.TouchDown += TouchDown;
-            TouchRegistrar.TouchClick += TouchClick;
-            TouchRegistrar.TouchExchange += TouchExchange;
+            TouchRegistrar.TouchDown += ExecuteDown;
+            TouchRegistrar.TouchClick += Rotate;
+            TouchRegistrar.TouchExchange += Exchange;
+
         }
         private void FixedUpdate()
         {
@@ -46,43 +53,35 @@ namespace Assets.scripts
             GameManager._instance.RefreshIndex(user.transform);
 
             user.transform.localPosition += direction;
-            //user.transform.position += direction;
             bool pass = GameManager._instance.CheckBoundary(user.transform);
 
             if (!pass)
                 user.transform.localPosition -= direction;
-                //user.transform.position -= direction;
             else
                 ExecutePredict();
 
             GameManager._instance.UpdateIndex(user.transform);
 
         }
-
-        /** x轴 */
         private void Left()
         {
-            Move(Vector3.left);
+            Move(left);
         }
         private void Right()
         {
-            Move(Vector3.right);
+            Move(right);
         }
-        /** z轴 */
         private void Down()
         {
             GameManager._instance.RefreshIndex(user.transform);
 
-            user.transform.localPosition += Vector3.forward;
-            //user.transform.localPosition += Vector3.back;
-            //user.transform.position += Vector3.back;
+            user.transform.localPosition += down;
             bool pass = GameManager._instance.CheckBoundary(user.transform);
+
             if (!pass)
             {
-                user.transform.localPosition -= Vector3.forward;
-                //user.transform.localPosition -= Vector3.back;
-                //user.transform.position -= Vector3.back;
                 Destroy(shadow);
+                user.transform.localPosition -= down;
                 GameManager._instance.ReachBoundary(user.transform);
             }
             else
@@ -90,29 +89,29 @@ namespace Assets.scripts
 
             GameManager._instance.UpdateIndex(user.transform);
         }
-        private void TouchClick()
+        private void Rotate()
         {
             GameManager._instance.RefreshIndex(user.transform);
 
             user.transform.Rotate(transform.up, ROTATE_ANGLE, Space.World);
             bool pass = GameManager._instance.CheckBoundary(user.transform);
-
             if (!pass)
                 user.transform.Rotate(transform.up, -ROTATE_ANGLE, Space.World);
-                //user.transform.Rotate(transform.up, -ROTATE_ANGLE);
             else
                 ExecutePredict();
 
             GameManager._instance.UpdateIndex(user.transform);
         }
-        private void TouchExchange()
+        private void Exchange()
         {
             GameManager._instance.RefreshIndex(user.transform);
             user.transform.localPosition = shadow.transform.localPosition;
-            //user.transform.position = shadow.transform.position;
-            GameManager._instance.UpdateIndex(user.transform);
+            //影子到达边界，不需要额外判断
+            GameManager._instance.ReachBoundary(user.transform);
+            //GameManager._instance.UpdateIndex(user.transform);
+
         }
-        private void TouchDown()
+        private void ExecuteDown()
         {
             downTimer += downTime;
         }
@@ -122,22 +121,17 @@ namespace Assets.scripts
         #region 预测
         private void PredictDown()
         {
-            shadow.transform.localPosition += Vector3.forward;
-            //shadow.transform.localPosition += Vector3.back;
-            //shadow.transform.position += Vector3.back;
+            shadow.transform.localPosition += down;
             bool pass = GameManager._instance.CheckBoundary(shadow.transform);
             if (!pass)
-                shadow.transform.localPosition -= Vector3.forward;
-                //shadow.transform.localPosition -= Vector3.back;
-                //shadow.transform.position -= Vector3.back;
+                shadow.transform.localPosition -= down;
         }
         private Vector3 PredictShadow()
         {
             Vector3 cur = shadow.transform.localPosition;
-            //Vector3 cur = shadow.transform.position;
             PredictDown();
             Vector3 pre = shadow.transform.localPosition;
-            //Vector3 pre = shadow.transform.position;
+
             if (pre == cur)
                 return pre;
             else
@@ -147,12 +141,14 @@ namespace Assets.scripts
         {
             shadow.transform.localPosition = user.transform.localPosition;
             shadow.transform.rotation = user.transform.rotation;
-            //shadow.transform.position = user.transform.position;
-            //shadow.transform.rotation = user.transform.rotation;
             PredictShadow();
         }
         #endregion
 
+        public GameObject GetShadow()
+        {
+            return shadow;
+        }
         public void SetUser(GameObject obj)
         {
             if (user)
@@ -164,9 +160,9 @@ namespace Assets.scripts
             shadow = Instantiate(user, user.transform.position, user.transform.rotation, transform);
             foreach (Transform child in shadow.transform)
                 child.GetComponent<Renderer>().material = transparentMaterial;
+
             ExecutePredict();
         }
-
         public void SetTransparentMaterial(Material transparent)
         {
             transparentMaterial = transparent;
@@ -175,10 +171,11 @@ namespace Assets.scripts
         {
             TouchRegistrar.TouchLeft -= Left;
             TouchRegistrar.TouchRight -= Right;
-            TouchRegistrar.TouchDown -= TouchDown;
-            TouchRegistrar.TouchClick -= TouchClick;
-            TouchRegistrar.TouchExchange -= TouchExchange;
+            TouchRegistrar.TouchDown -= ExecuteDown;
+            TouchRegistrar.TouchClick -= Rotate;
+            TouchRegistrar.TouchExchange -= Exchange;
         }
+
     }
 
 }

@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
@@ -5,18 +7,12 @@ using UnityEngine.AI;
 enum RoleState
 {
     isEmpty, // 闲置
-    isStart, // start流程
     isAgent, // nav流程
     isBattle // battle流程
 }
 public class RoleControllar : MonoBehaviour
 {
     private RoleState myState;
-
-    /* 使用NavMesh之前 */
-    private Vector3 targetZero;
-    private float frameSpeed;
-    private bool triggerFlag;
 
     /* NavMesh设置 */
     protected NavMeshAgent roleAgent;
@@ -33,9 +29,6 @@ public class RoleControllar : MonoBehaviour
     {
         switch (myState)
         {
-            case RoleState.isStart:
-                StartStage();
-                break;
             case RoleState.isAgent:
                 AgentStage();
                 break;
@@ -44,31 +37,10 @@ public class RoleControllar : MonoBehaviour
                 break;
         }
     }
-
     #region 阶段
-    private void StartStage()
-    {
-        transform.position = Vector3.MoveTowards(transform.position, targetZero, frameSpeed);
-        if (Mathf.Abs(transform.position.x - targetZero.x) <= 0.1)
-        {
-            Transform ancestor = transform.parent.parent;
-            transform.parent = RoleManager._instance.transform;
-
-            myState = RoleState.isAgent;
-            InitialMeshAgent();
-            
-            if (triggerFlag)
-            {
-                RoleManager._instance.RemoveCubs(ancestor);//角色-》盒子-》
-                triggerFlag = false;
-            }
-
-        }
-
-    }
     private void AgentStage()
     {
-        if (Mathf.Abs(transform.position.z - target.z) <= 0.1)
+        if (!roleAgent.pathPending && roleAgent.remainingDistance <= 0.1f)
             ReachTarget();
 
         EnemyControllar enemy = RoleManager._instance.FindRecentEnemy(this);
@@ -116,19 +88,15 @@ public class RoleControllar : MonoBehaviour
             roleAgent.acceleration = 400f;
             roleAgent.autoBraking = false;
         }
-
+        
         /* 行为设置 */
-        target = GameObject.Find("EndTarget").transform.position;
         roleAgent.SetDestination(target);
-
     }
     protected void Initial()
     {
         myState = RoleState.isEmpty;
         data = new(2, 0, 3, 2, 1, 1.2f);
-        /* 把秒速率转化为帧速率 */
-        frameSpeed = data.moveSpeed * (Time.fixedDeltaTime / 1);
-        triggerFlag = false;
+        target = GameObject.Find("EndTarget").transform.localPosition;
     }
     #endregion
     private void ReachTarget()
@@ -138,10 +106,16 @@ public class RoleControllar : MonoBehaviour
         player.text = "EnemyHealth:" + (health - 1);
         Destroy(gameObject);
     }
-    public void EnableStartStage(Vector3 target, bool flag)
+    public void EnableAgent(Action callback)
     {
-        myState = RoleState.isStart;
-        targetZero = target;
-        triggerFlag = flag;
+        StartCoroutine(TPCoroutine(callback));
+    }
+    private IEnumerator TPCoroutine(Action callback)
+    {
+        yield return new WaitForSeconds(1f); // TP动画播放时间
+        transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y, 0);
+        myState = RoleState.isAgent;
+        InitialMeshAgent();
+        callback.Invoke();
     }
 }
