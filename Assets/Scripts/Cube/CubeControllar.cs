@@ -16,7 +16,7 @@ namespace Assets.scripts
         /** x~z坐标系 */
         protected Vector3 left = Vector3.left;
         protected Vector3 right = Vector3.right;
-        protected Vector3 down = Vector3.back;
+        public Vector3 down = Vector3.back;
 
         private void Awake()
         {
@@ -50,17 +50,15 @@ namespace Assets.scripts
         #region 控制
         private void Move(Vector3 direction)
         {
-            GameManager._instance.RefreshIndex(user.transform);
+            if (user == null)
+                return;
 
             user.transform.localPosition += direction;
             bool pass = GameManager._instance.CheckBoundary(user.transform);
-
             if (!pass)
                 user.transform.localPosition -= direction;
             else
                 ExecutePredict();
-
-            GameManager._instance.UpdateIndex(user.transform);
 
         }
         private void Left()
@@ -73,7 +71,8 @@ namespace Assets.scripts
         }
         private void Down()
         {
-            GameManager._instance.RefreshIndex(user.transform);
+            if (user == null)
+                return;
 
             user.transform.localPosition += down;
             bool pass = GameManager._instance.CheckBoundary(user.transform);
@@ -86,12 +85,11 @@ namespace Assets.scripts
             }
             else
                 ExecutePredict();
-
-            GameManager._instance.UpdateIndex(user.transform);
         }
         private void Rotate()
         {
-            GameManager._instance.RefreshIndex(user.transform);
+            if (user == null)
+                return;
 
             user.transform.Rotate(transform.up, ROTATE_ANGLE, Space.World);
             bool pass = GameManager._instance.CheckBoundary(user.transform);
@@ -100,15 +98,15 @@ namespace Assets.scripts
             else
                 ExecutePredict();
 
-            GameManager._instance.UpdateIndex(user.transform);
         }
         private void Exchange()
         {
-            GameManager._instance.RefreshIndex(user.transform);
+            if (user == null)
+                return;
+
             user.transform.localPosition = shadow.transform.localPosition;
             //影子到达边界，不需要额外判断
             GameManager._instance.ReachBoundary(user.transform);
-            //GameManager._instance.UpdateIndex(user.transform);
 
         }
         private void ExecuteDown()
@@ -145,23 +143,30 @@ namespace Assets.scripts
         }
         #endregion
 
-        public GameObject GetShadow()
-        {
-            return shadow;
-        }
+
         public void SetUser(GameObject obj)
+        {
+            user = obj;
+            shadow = Instantiate(user, user.transform.position, user.transform.rotation, transform);
+            
+            foreach (Transform child in shadow.transform)
+            {
+                child.GetComponent<Renderer>().material = transparentMaterial;
+                if (child.childCount != 0)
+                    Destroy(child.GetChild(0).gameObject);
+            }
+
+
+            ExecutePredict();
+        }
+        public void DeleteUser()
         {
             if (user)
                 Destroy(user);
             if (shadow)
                 Destroy(shadow);
-            
-            user = obj;
-            shadow = Instantiate(user, user.transform.position, user.transform.rotation, transform);
-            foreach (Transform child in shadow.transform)
-                child.GetComponent<Renderer>().material = transparentMaterial;
-
-            ExecutePredict();
+            user = null;
+            shadow = null;
         }
         public void SetTransparentMaterial(Material transparent)
         {

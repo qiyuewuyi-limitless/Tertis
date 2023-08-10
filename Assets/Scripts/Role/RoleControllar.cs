@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -106,16 +105,17 @@ public class RoleControllar : MonoBehaviour
         player.text = "EnemyHealth:" + (health - 1);
         Destroy(gameObject);
     }
-    public void EnableAgent(Action callback)
+    public void EnableAgent()
     {
-        StartCoroutine(TPCoroutine(callback));
+        StartCoroutine(TPCoroutine());
     }
-    private IEnumerator TPCoroutine(Action callback)
+    private IEnumerator TPCoroutine()
     {
         yield return new WaitForSeconds(1f); // TP动画播放时间
+        transform.parent = RoleManager._instance.transform;
         transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y, 0);
         myState = RoleState.isAgent;
         InitialMeshAgent();
-        callback.Invoke();
+        //callback.Invoke();
     }
 }

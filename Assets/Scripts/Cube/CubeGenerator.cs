@@ -7,7 +7,6 @@ using UnityEngine;
 public class CubeGenerator : MonoBehaviour
 {
     private List<GameObject> generateList = new List<GameObject>();
-    Transform targetPoint;
     public int maxGeneratorCount = 2; //方块上生成的最大角色数
     public float roleOffest = 1f; // 角色距离方块的偏移量(垂直)
     private void Awake()
@@ -29,12 +28,12 @@ public class CubeGenerator : MonoBehaviour
 
         return res;
     }
-    public GameObject GeneratorCube()
+    public GameObject GeneratorCube(Vector3 point)
     {
         int value, maxCount = maxGeneratorCount;
         value = GetRandomValue(generateList.Count);
         //从世界坐标系转移到局部坐标系
-        GameObject obj = Instantiate(generateList[value], targetPoint.position, targetPoint.rotation, transform);
+        GameObject obj = Instantiate(generateList[value], point, transform.rotation, transform);
         //GameObject obj = Instantiate(generateList[value], targetPoint.position, Quaternion.identity);
         
         // 为生成的方块随机地添加角色
@@ -57,7 +56,6 @@ public class CubeGenerator : MonoBehaviour
 
     public void Initial()
     {
-        targetPoint = GameObject.Find("GeneratorPoint").transform;
         for (int i = 1; i <= 7; i++)
         {
             GameManager._instance.prefabAssests.TryGetValue("item" + i, out GameObject obj);

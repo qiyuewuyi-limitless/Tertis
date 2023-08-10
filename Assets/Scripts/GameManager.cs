@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,37 +12,44 @@ namespace Assets.scripts
         const int size = 1; // 单位尺寸
         const int maxHeight = 16; //允许的最大高度
         public float autoDownTime = 0.3f; //方块自动下落时间
-        public Transform offestTransform; //旋转偏移量
-        private Transform boundary; // 占位作用
         public Dictionary<string, GameObject> prefabAssests = new();
         public Material transparentMaterial;
 
         public static GameManager _instance;
 
         /** 方块 */
-        private GameObject item;
-        public CubeControllar itemControllar;
-        public List<GameObject> rows = new();
+        private GameObject bigBox;
+        private GameObject element;
+        private GameObject next;
+        private Vector3 curPoint;
+        private Vector3 nextPoint;
 
+        /** 控制器 */
+        private CubeControllar elementControllar;
+        private bool isNotHandle = true;
         /** 生成器 */
-        public CubeGenerator itemGenerator;
+        public CubeGenerator elementGenerator;
         public RoleGenerator roleGenerator;
 
         /** 映射信息 */
+        private Transform boundary; // 占位作用
         private Vector3 headPoint;
         private Dictionary<Vector3, string> pointDict = new(new Vector3EqualityComparer());
-        public Transform[,] stateTable = new Transform[height, width];
+        private Transform[,] stateTable = new Transform[height, width];
 
         private void Awake()
         {
-            if (_instance == null)
-            {
-                _instance = this;
-                InitialParameter();
-            }
-            else
-                Destroy(gameObject);
+            /*            if (_instance == null)
+                        {
+                            _instance = this;
+                            InitialGameMangerParameter();
+                        }
+                        else
+                            Destroy(gameObject);*/
+            _instance = this;
+            InitialGameMangerParameter();
         }
+
         public bool CheckBoundary(Transform transform)
         {
             foreach (Transform child in transform)
@@ -54,59 +62,81 @@ namespace Assets.scripts
         }
         public void ReachBoundary(Transform transform)
         {
-            List<int> rowList = new();
+            UpdateIndexToElement(transform);
+
             List<Transform> childs = new();
             foreach (Transform child in transform)
-            {
-                GetInfo(child, out int row, out int column);
-                stateTable[row, column] = child.transform;
-                rowList.Add(row);
                 childs.Add(child);
-            }
-            for (int i = 0; i < rowList.Count; i++)
-                childs[i].parent = this.rows[rowList[i]].transform;
+            foreach (Transform child in childs)
+                child.parent = bigBox.transform;
 
-            if (item.transform == transform)
+            if (element.transform == transform)
             {
-                item = itemGenerator.GeneratorCube();
-                itemControllar.SetUser(item);
-            }
-            FindFullRows();
-        }
-        public void ReachBoundaryToStatic(GameObject rowGameObject)
-        {
-            int rowNumber = rows.IndexOf(rowGameObject);
-            if(rowNumber >= maxHeight)
-                CleanRows();
+                elementControllar.DeleteUser();
+                element = next;
+                StartCoroutine(MoveCoroutine(delegate
+                {
+                    elementControllar.SetUser(element);
+                    next = elementGenerator.GeneratorCube(nextPoint);
+                }));
+            } // 更换控制方块
 
-            List<int> rowList = new();
-            List<Transform> childs = new();
-            foreach (Transform child in rowGameObject.transform)
+            if (isNotHandle)
             {
-                GetInfo(child, out int row, out int column);
-                stateTable[row, column] = child.transform;
-                rowList.Add(row);
-                childs.Add(child);
+                List<int> fullToRows = GetFullToRows();
+                isNotHandle = false;
+                StartCoroutine(HandleFullRow(fullToRows));
             }
-            for (int i = 0; i < rowList.Count; i++)
-                childs[i].parent = this.rows[rowList[i]].transform;
-
-            FindFullRows();
-
-        }
-        private void FindFullRows()
+        } // 频繁调用
+        
+        private bool isFullRow(int index)
         {
-            foreach (GameObject control in rows)
-                if (control.transform.childCount == width - 2)
-                    RoleManager._instance.HandleFullRow(control);
+            for (int i = 1; i <= width - 2; i++)
+                if (!stateTable[index, i])
+                    return false;
+
+            return true;
         }
-        public void RemoveCubs(Transform ancestor)
+        private List<int> GetFullToRows()
         {
-            foreach (Transform child in ancestor)
-                Destroy(child.gameObject);
+            List<int> fullToRows = new();
+            for (int i = 1; i <= height - 2; i++)
+                if (isFullRow(i))
+                    fullToRows.Add(i);
+            fullToRows.Sort();
+            fullToRows.Reverse();
+            return fullToRows;
+        }
+        private IEnumerator HandleFullRow(List<int> fullToRows)
+        {
+            foreach (int i in fullToRows)
+            {
+                RoleMove(i);
+                while (!RoleFinishMove(i)) yield return null;
+                RemoveOneRow(i);
+            }
+            isNotHandle = true;
+        } 
+       
+        private void RoleMove(int index)
+        {
+            GameObject role;
+            for (int i = 1; i <= width - 2; i++)
+                if (stateTable[index, i].childCount != 0)
+                {
+                    role = stateTable[index, i].GetChild(0).gameObject;
+                    role.GetComponent<RoleControllar>().EnableAgent();
+                }
+        }
+        private bool RoleFinishMove(int index)
+        {
+            for (int i = 1; i <= width - 2; i++)
+                if (stateTable[index, i].childCount != 0)
+                    return false;
+
+            return true;
         }
 
-        #region 表更新
         private Vector3 GetRealtivePosition(Transform transform)
         {
             Vector3 position = transform.localPosition;
@@ -128,7 +158,9 @@ namespace Assets.scripts
             column = indexList[1];
             return;
         }
-        internal void UpdateIndex(Transform transform)
+
+
+        internal void UpdateIndexToElement(Transform transform)
         {
             foreach (Transform child in transform)
             {
@@ -136,38 +168,37 @@ namespace Assets.scripts
                 stateTable[row, column] = child.transform;
             }
         }
-        internal void RefreshIndex(Transform transform)
+        private void RemoveOneRow(int index)
         {
-            foreach (Transform child in transform)
-            {
-                GetInfo(child, out int row, out int column);
-                stateTable[row, column] = null;
-            }
-        }
-        private void CleanRows()
-        {
-            for (int i = 1; i < height - 1; i++)
-                foreach (Transform child in rows[i].transform)
-                    Destroy(child.gameObject);
-        }
-        #endregion
+            for (int i = 1; i <= width - 2; i++)
+                Destroy(stateTable[index, i].gameObject);
 
-        private void InitialParameter()
+            for (int i = index + 1; i <= height - 2; i++)
+                for (int j = 1; j <= width - 2; j++)
+                {
+                    if(stateTable[i,j])
+                        stateTable[i, j].localPosition += elementControllar.down;
+                    
+                    stateTable[i - 1, j] = stateTable[i, j];
+                }
+        }
+        private void GolbalRefresh()
         {
-            offestTransform = transform;
+            for (int i = 1; i <= height - 2; i++)
+                for (int j = 1; j <= width - 2; j++)
+                    if (stateTable[i, j])
+                        Destroy(stateTable[i, j].gameObject);
+        }
+
+        #region 初始化
+        private void InitialGameMangerParameter()
+        {
+            bigBox = GameObject.Find("BigBox");
+            curPoint = GameObject.Find("ElementPoint").transform.localPosition;
+            nextPoint = GameObject.Find("NextPoint").transform.localPosition;
             headPoint = transform.localPosition;
 
-            for (int i = 0; i < height - 1; i++)
-            {
-                GameObject row = new("row" + i);
-                row.transform.parent = transform;
-                row.transform.localPosition = Vector3.zero;
-                row.transform.localRotation = Quaternion.identity;
-                row.AddComponent<StaticControllar>();
-                rows.Add(row);
-            }
-
-            boundary = rows[0].transform;
+            boundary = new GameObject("Boundary").transform;
             for (int i = 0; i < height; i++)
             {
                 for (int j = 0; j < width; j++)
@@ -182,17 +213,32 @@ namespace Assets.scripts
                 }
             }
         }
-        public void InitialGameManger()
+        public void InitialGameMangerComponent()
         {
-            
-            itemGenerator = gameObject.AddComponent<CubeGenerator>();
-            roleGenerator = gameObject.AddComponent<RoleGenerator>();
-            itemControllar = gameObject.AddComponent<CubeControllar>();
-            itemControllar.SetTransparentMaterial(transparentMaterial);
 
-            item = itemGenerator.GeneratorCube();
-            itemControllar.SetUser(item);
-            
+            elementGenerator = gameObject.AddComponent<CubeGenerator>();
+            roleGenerator = gameObject.AddComponent<RoleGenerator>();
+            elementControllar = gameObject.AddComponent<CubeControllar>();
+            elementControllar.SetTransparentMaterial(transparentMaterial);
+
+            element = elementGenerator.GeneratorCube(curPoint);
+            next = elementGenerator.GeneratorCube(nextPoint);
+            elementControllar.SetUser(element);
+
+        }
+        #endregion
+
+        private IEnumerator MoveCoroutine(Action callback)
+        {
+            Vector3 cur = element.transform.localPosition;
+            while (cur.z > curPoint.z)
+            {
+                element.transform.localPosition = new Vector3(cur.x, cur.y, cur.z - 4 * 0.1f);
+                cur = element.transform.localPosition;
+                yield return new WaitForSeconds(0.1f);
+            }
+            element.transform.localPosition = curPoint; // 消除误差
+            callback();
         }
     }
 }

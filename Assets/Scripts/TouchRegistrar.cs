@@ -6,9 +6,9 @@ public class TouchRegistrar : MonoBehaviour
 {
     private Vector2 startPos;
     private Vector2 originPos;
-    public float determineDistance = 100f; //最短响应距离
-    public float clickRange = 25f; //最大点击范围
-    public float exchangeDistance = 100f; //最小交换距离
+    public float determineDistance = 120f; //最短响应距离
+    public float clickRange = 20f; //最大点击范围
+    public float exchangeDistance = 300f; //最小交换距离
     
     /** 发布事件 */
     public static event UnityAction TouchLeft;
@@ -33,7 +33,7 @@ public class TouchRegistrar : MonoBehaviour
     {
         float swipDisAxisX = position.x - startPos.x;
         float swipDisAxisY = position.y - startPos.y;
-        bool isX = Mathf.Abs(swipDisAxisX) > Mathf.Abs(swipDisAxisY);
+        bool isX = Mathf.Abs(swipDisAxisX) > Mathf.Abs(swipDisAxisY) + 50f;
 
         if (Mathf.Abs(swipDisAxisX) > determineDistance && isX)
         {

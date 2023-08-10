@@ -21,28 +21,9 @@ public class RoleManager : MonoBehaviour
         Initial();
     }
 
-    public void HandleFullRow(GameObject rowGameObject)
+    public void Method()
     {
-        List<Transform> roles = new();
-        int counter = 0;
-        foreach (Transform child in rowGameObject.transform)
-            if (child.childCount != 0)
-                roles.Add(child.GetChild(0));
 
-        foreach (Transform role in roles)
-        {
-            role.parent = transform;
-            role.GetComponent<RoleControllar>().EnableAgent(delegate
-            {
-                counter++;
-                if (counter == roles.Count)
-                    RemoveCubs(rowGameObject.transform);
-            }); //¼¤»î½ÇÉ«
-        }
-    }
-    public void RemoveCubs(Transform ancestor)
-    {
-        GameManager._instance.RemoveCubs(ancestor);
     }
 
     public EnemyControllar FindRecentEnemy(RoleControllar role)

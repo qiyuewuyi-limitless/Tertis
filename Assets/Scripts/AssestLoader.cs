@@ -64,7 +64,7 @@ public class AssestLoader : MonoBehaviour
         if (assestCounter == assestCounts)
         {
             Destroy(gameObject);
-            GameManager._instance.InitialGameManger();
+            GameManager._instance.InitialGameMangerComponent();
         }
     }
 }
