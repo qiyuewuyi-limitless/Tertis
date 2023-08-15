@@ -1,8 +1,67 @@
 import response from './response';
 import moduleHelper from './module-helper';
-import { formatJsonStr } from './utils';
+import { cacheArrayBuffer, formatJsonStr, formatResponse } from './utils';
 
 const tempCacheObj = {};
+function runMethod(method, option, callbackId, isString = false) {
+    try {
+        const fs = wx.getFileSystemManager();
+        let config;
+        if (typeof option === 'string') {
+            config = formatJsonStr(option);
+        }
+        else {
+            config = option;
+        }
+        if (method === 'readZipEntry' && !config.encoding) {
+            config.encoding = 'utf-8';
+            console.error('fs.readZipEntry不支持读取ArrayBuffer，已改为utf-8');
+        }
+        
+        fs[method]({
+            ...config,
+            success(res) {
+                let returnRes = '';
+                if (method === 'read') {
+                    cacheArrayBuffer(callbackId, res.arrayBuffer);
+                    returnRes = JSON.stringify({
+                        bytesRead: res.bytesRead,
+                        arrayBufferLength: res.arrayBuffer.byteLength,
+                    });
+                }
+                else if (method === 'readCompressedFile') {
+                    cacheArrayBuffer(callbackId, res.data);
+                    returnRes = JSON.stringify({
+                        arrayBufferLength: res.data.byteLength,
+                    });
+                }
+                else {
+                    returnRes = JSON.stringify(res);
+                }
+                
+                moduleHelper.send('FileSystemManagerCallback', JSON.stringify({
+                    callbackId, type: 'success', res: returnRes, method: isString ? `${method}_string` : method,
+                }));
+            },
+            fail(res) {
+                
+                moduleHelper.send('FileSystemManagerCallback', JSON.stringify({
+                    callbackId, type: 'fail', res: JSON.stringify(res), method: isString ? `${method}_string` : method,
+                }));
+            },
+            complete(res) {
+                moduleHelper.send('FileSystemManagerCallback', JSON.stringify({
+                    callbackId, type: 'complete', res: JSON.stringify(res), method: isString ? `${method}_string` : method,
+                }));
+            },
+        });
+    }
+    catch (e) {
+        moduleHelper.send('FileSystemManagerCallback', JSON.stringify({
+            callbackId, type: 'complete', res: 'fail', method: isString ? `${method}_string` : method,
+        }));
+    }
+}
 export default {
         WXGetUserDataPath() {
         return wx.env.USER_DATA_PATH;
@@ -247,7 +306,6 @@ export default {
         wx.getFileSystemManager().stat({
             ...config,
             success(res) {
-                
                 if (!Array.isArray(res.stats)) {
                     
                     res.one_stat = res.stats;
@@ -282,5 +340,145 @@ export default {
                 }));
             },
         });
+    },
+    WX_FileSystemManagerClose(option, callbackId) {
+        runMethod('close', option, callbackId);
+    },
+    WX_FileSystemManagerFstat(option, callbackId) {
+        runMethod('fstat', option, callbackId);
+    },
+    WX_FileSystemManagerFtruncate(option, callbackId) {
+        runMethod('ftruncate', option, callbackId);
+    },
+    WX_FileSystemManagerGetFileInfo(option, callbackId) {
+        runMethod('getFileInfo', option, callbackId);
+    },
+    WX_FileSystemManagerGetSavedFileList(option, callbackId) {
+        runMethod('getSavedFileList', option, callbackId);
+    },
+    WX_FileSystemManagerOpen(option, callbackId) {
+        runMethod('open', option, callbackId);
+    },
+    WX_FileSystemManagerRead(option, data, callbackId) {
+        const config = formatJsonStr(option);
+        config.arrayBuffer = data.buffer;
+        runMethod('read', config, callbackId);
+    },
+    WX_FileSystemManagerReadCompressedFile(option, callbackId) {
+        runMethod('readCompressedFile', option, callbackId);
+    },
+    WX_FileSystemManagerReadZipEntry(option, callbackId) {
+        runMethod('readZipEntry', option, callbackId);
+    },
+    WX_FileSystemManagerReadZipEntryString(option, callbackId) {
+        runMethod('readZipEntry', option, callbackId, true);
+    },
+    WX_FileSystemManagerReaddir(option, callbackId) {
+        runMethod('readdir', option, callbackId);
+    },
+    WX_FileSystemManagerRemoveSavedFile(option, callbackId) {
+        runMethod('removeSavedFile', option, callbackId);
+    },
+    WX_FileSystemManagerRename(option, callbackId) {
+        runMethod('rename', option, callbackId);
+    },
+    WX_FileSystemManagerSaveFile(option, callbackId) {
+        runMethod('saveFile', option, callbackId);
+    },
+    WX_FileSystemManagerTruncate(option, callbackId) {
+        runMethod('truncate', option, callbackId);
+    },
+    WX_FileSystemManagerUnzip(option, callbackId) {
+        runMethod('unzip', option, callbackId);
+    },
+    WX_FileSystemManagerWrite(option, data, callbackId) {
+        const config = formatJsonStr(option);
+        config.data = data.buffer;
+        runMethod('write', config, callbackId);
+    },
+    WX_FileSystemManagerWriteString(option, callbackId) {
+        runMethod('write', option, callbackId, true);
+    },
+    WX_FileSystemManagerReaddirSync(dirPath) {
+        const fs = wx.getFileSystemManager();
+        return JSON.stringify(fs.readdirSync(dirPath));
+    },
+    WX_FileSystemManagerReadCompressedFileSync(option, callbackId) {
+        const fs = wx.getFileSystemManager();
+        const res = fs.readCompressedFileSync(formatJsonStr(option));
+        cacheArrayBuffer(callbackId, res);
+        return res.byteLength;
+    },
+    WX_FileSystemManagerAppendFileStringSync(filePath, data, encoding) {
+        const fs = wx.getFileSystemManager();
+        fs.appendFileSync(filePath, data, encoding);
+    },
+    WX_FileSystemManagerAppendFileSync(filePath, data, encoding) {
+        const fs = wx.getFileSystemManager();
+        fs.appendFileSync(filePath, data.buffer, encoding);
+    },
+    WX_FileSystemManagerRenameSync(oldPath, newPath) {
+        const fs = wx.getFileSystemManager();
+        fs.renameSync(oldPath, newPath);
+        return 'ok';
+    },
+    WX_FileSystemManagerReadSync(option, callbackId) {
+        const fs = wx.getFileSystemManager();
+        const res = fs.readSync(formatJsonStr(option));
+        cacheArrayBuffer(callbackId, res.arrayBuffer);
+        return JSON.stringify({
+            bytesRead: res.bytesRead,
+            arrayBufferLength: res.arrayBuffer.byteLength,
+        });
+    },
+    WX_FileSystemManagerFstatSync(option) {
+        const fs = wx.getFileSystemManager();
+        const res = fs.fstatSync(formatJsonStr(option));
+        formatResponse('Stats', res);
+        return JSON.stringify(res);
+    },
+    WX_FileSystemManagerStatSync(path, recursive) {
+        const fs = wx.getFileSystemManager();
+        
+        return JSON.stringify(fs.statSync(path, recursive));
+    },
+    WX_FileSystemManagerWriteSync(option, data) {
+        const fs = wx.getFileSystemManager();
+        const optionConfig = formatJsonStr(option);
+        optionConfig.data = data.buffer;
+        const res = fs.writeSync(optionConfig);
+        return JSON.stringify({
+            mode: res.bytesWritten,
+        });
+    },
+    WX_FileSystemManagerWriteStringSync(option) {
+        const fs = wx.getFileSystemManager();
+        const res = fs.writeSync(formatJsonStr(option));
+        return JSON.stringify({
+            mode: res.bytesWritten,
+        });
+    },
+    WX_FileSystemManagerOpenSync(option) {
+        const fs = wx.getFileSystemManager();
+        return fs.openSync(formatJsonStr(option));
+    },
+    WX_FileSystemManagerSaveFileSync(tempFilePath, filePath) {
+        const fs = wx.getFileSystemManager();
+        return fs.saveFileSync(tempFilePath, filePath);
+    },
+    WX_FileSystemManagerCloseSync(option) {
+        const fs = wx.getFileSystemManager();
+        fs.closeSync(formatJsonStr(option));
+        return 'ok';
+    },
+    WX_FileSystemManagerFtruncateSync(option) {
+        const fs = wx.getFileSystemManager();
+        fs.ftruncateSync(formatJsonStr(option));
+        return 'ok';
+    },
+    WX_FileSystemManagerTruncateSync(option) {
+        const fs = wx.getFileSystemManager();
+        fs.truncateSync(formatJsonStr(option));
+        return 'ok';
     },
 };

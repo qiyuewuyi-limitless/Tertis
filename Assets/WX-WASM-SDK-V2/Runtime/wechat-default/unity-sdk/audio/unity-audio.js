@@ -700,7 +700,6 @@ export default {
             decompress = 1;
         }
         
-        
         if (isPc) {
             decompress = 1;
         }

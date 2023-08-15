@@ -220,6 +220,17 @@ namespace WeChatWASM
             }
 
             var header = "function createWebAudio(){window.AudioContext=window.AudioContext||window.webkitAudioContext;if(window.AudioContext){return new AudioContext();}return wx.createWebAudioContext();}\n";
+
+            if (config.CompileOptions.DevelopBuild && config.CompileOptions.enableRenderAnalysis)
+            {
+                header = header + RenderAnalysisRules.header;
+                for (i = 0; i < RenderAnalysisRules.rules.Length; i++)
+                {
+                    var rule = RenderAnalysisRules.rules[i];
+                    text = Regex.Replace(text, rule.old, rule.newStr);
+                }
+            }
+
             text = header + text;
 
             File.WriteAllText(Path.Combine(config.ProjectConf.DST, miniGameDir, "webgl.wasm.framework.unityweb.js"), text, new UTF8Encoding(false));
@@ -648,23 +659,7 @@ namespace WeChatWASM
                     }
                 }
             }
-
-            var exePath = string.Empty;
-            if (WXExtEnvDef.GETDEF("UNITY_EDITOR_OSX"))
-            {
-                exePath = Path.Combine(Application.dataPath, "WX-WASM-SDK-V2/Editor/Brotli/macos/brotli");
-                if (WXExtEnvDef.GETDEF("UNITY_2021_2_OR_NEWER"))
-                {
-                    exePath = Path.Combine(System.AppDomain.CurrentDomain.BaseDirectory, "PlaybackEngines/WebGLSupport/BuildTools/Brotli/macos/brotli");
-                }
-            }
-            else
-            {
-                exePath = Path.Combine(Application.dataPath, "WX-WASM-SDK-V2/Editor/Brotli/win_x86_64/brotli.exe");
-            }
-            WeChatWASM.UnityUtil.RunCmd(exePath, string.Format($" --force --quality 11" +
-                   $" --input \"{sourcePath}\"" +
-                   $" --output \"{targetPath}\""), string.Empty);
+            UnityUtil.brotli(sourcePath, targetPath);
             if (targetPath != cachePath)
             {
                 File.Copy(targetPath, cachePath, true);
@@ -722,11 +717,10 @@ namespace WeChatWASM
             File.WriteAllText(Path.Combine(config.ProjectConf.DST, miniGameDir, "unity-sdk", "index.js"), content, Encoding.UTF8);
             content = File.ReadAllText(Path.Combine(Application.dataPath, "WX-WASM-SDK-V2", "Runtime", "wechat-default", "unity-sdk", "storage.js"), Encoding.UTF8);
             var PreLoadKeys = config.PlayerPrefsKeys.Count > 0 ? JsonMapper.ToJson(config.PlayerPrefsKeys) : "[]";
-            content = content.Replace("\"$PreLoadKeys\"", PreLoadKeys);
+            content = content.Replace("'$PreLoadKeys'", PreLoadKeys);
             File.WriteAllText(Path.Combine(config.ProjectConf.DST, miniGameDir, "unity-sdk", "storage.js"), content, Encoding.UTF8);
             // 修改纹理dxt
             content = File.ReadAllText(Path.Combine(Application.dataPath, "WX-WASM-SDK-V2", "Runtime", "wechat-default", "unity-sdk", "texture.js"), Encoding.UTF8);
-            content = content.Replace("\"$UseDXT5$\"", config.CompressTexture.useDXT5 ? "true" : "false");
             File.WriteAllText(Path.Combine(config.ProjectConf.DST, miniGameDir, "unity-sdk", "texture.js"), content, Encoding.UTF8);
         }
 

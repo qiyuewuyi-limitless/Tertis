@@ -180,7 +180,7 @@ namespace WeChatWASM
                 });
                 this.formCheckbox("showMonitorSuggestModal", "显示优化建议弹窗");
                 this.formCheckbox("enableProfileStats", "显示性能面板");
-
+                this.formCheckbox("enableRenderAnalysis", "显示渲染日志(dev only)");
                 EditorGUILayout.EndVertical();
             }
 
@@ -404,7 +404,7 @@ namespace WeChatWASM
             this.setData("disableHighPerformanceFallback", config.ProjectConf.disableHighPerformanceFallback);
             this.setData("showMonitorSuggestModal", config.CompileOptions.showMonitorSuggestModal);
             this.setData("enableProfileStats", config.CompileOptions.enableProfileStats);
-
+            this.setData("enableRenderAnalysis", config.CompileOptions.enableRenderAnalysis);
             this.setData("autoUploadFirstBundle", true);
         }
 
@@ -450,6 +450,7 @@ namespace WeChatWASM
             config.ProjectConf.disableHighPerformanceFallback = this.getDataCheckbox("disableHighPerformanceFallback");
             config.CompileOptions.showMonitorSuggestModal = this.getDataCheckbox("showMonitorSuggestModal");
             config.CompileOptions.enableProfileStats = this.getDataCheckbox("enableProfileStats");
+            config.CompileOptions.enableRenderAnalysis = this.getDataCheckbox("enableRenderAnalysis");
         }
 
         private string getDataInput(string target)

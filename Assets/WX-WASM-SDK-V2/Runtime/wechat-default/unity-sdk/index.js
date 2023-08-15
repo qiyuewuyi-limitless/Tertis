@@ -23,6 +23,7 @@ import uploadFile from './upload-file';
 import gameRecorder from './game-recorder';
 import chat from './chat';
 import font from './font/index';
+import authorize from './authorize';
 const unityVersion = '$unityVersion$';
 GameGlobal.unityNamespace = GameGlobal.unityNamespace || {};
 GameGlobal.unityNamespace.unityVersion = unityVersion;
@@ -94,5 +95,6 @@ const WXWASMSDK = {
     ...gameRecorder,
     ...chat,
     ...font,
+    ...authorize,
 };
 GameGlobal.WXWASMSDK = WXWASMSDK;

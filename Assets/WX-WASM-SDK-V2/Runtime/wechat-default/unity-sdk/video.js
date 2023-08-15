@@ -13,6 +13,18 @@ export default {
         videoList[id] = wx.createVideo(params);
         return id;
     },
+    WXVideoSetProperty(id, key, value) {
+        const obj = getObject(id);
+        if (!obj) {
+            return;
+        }
+        if (key === 'x' || key === 'y' || key === 'width' || key === 'height') {
+            obj[key] = +value;
+        }
+        else if (key === 'src' || key === 'poster') {
+            obj[key] = value;
+        }
+    },
     WXVideoPlay(id) {
         const obj = getObject(id);
         if (!obj) {

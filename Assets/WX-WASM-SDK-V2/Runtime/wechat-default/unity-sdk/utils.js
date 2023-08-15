@@ -1,5 +1,7 @@
 import moduleHelper from './module-helper';
 import { ResType } from './resType';
+import { ResTypeOther } from './resTypeOther';
+Object.assign(ResType, ResTypeOther);
 function realUid(length = 20, char = true) {
     const soup = `${char ? '' : '!#%()*+,-./:;=?@[]^_`{|}~'}ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789`;
     const soupLength = soup.length;
@@ -15,7 +17,7 @@ const typeMap = {
     array: [],
     arrayBuffer: [],
     string: '',
-    int: 0,
+    number: 0,
     bool: false,
     object: {},
 };
@@ -23,7 +25,7 @@ const interfaceTypeMap = {
     array: 'object',
     arrayBuffer: 'object',
     string: 'string',
-    int: 'number',
+    number: 'number',
     bool: 'boolean',
     object: 'object',
 };
@@ -88,7 +90,7 @@ export function formatResponse(type, data, id) {
         else if (conf[key] === 'long') {
             data[key] = parseInt(data[key], 10);
         }
-        else if (conf[key] === 'int' && typeof data[key] === 'string') {
+        else if (conf[key] === 'number' && typeof data[key] === 'string') {
             data[key] = Number(data[key]);
         }
         else if (conf[key] === 'string' && typeof data[key] === 'number') {
@@ -156,14 +158,19 @@ export function formatJsonStr(str) {
     if (!str) {
         return {};
     }
-    const conf = JSON.parse(str);
-    const keys = Object.keys(conf);
-    keys.forEach((v) => {
-        if (conf[v] === null) {
-            delete conf[v];
-        }
-    });
-    return conf;
+    try {
+        const conf = JSON.parse(str);
+        const keys = Object.keys(conf);
+        keys.forEach((v) => {
+            if (conf[v] === null) {
+                delete conf[v];
+            }
+        });
+        return conf;
+    }
+    catch (e) {
+        return str;
+    }
 }
 export function cacheArrayBuffer(callbackId, data) {
     tempCacheObj[callbackId] = data;

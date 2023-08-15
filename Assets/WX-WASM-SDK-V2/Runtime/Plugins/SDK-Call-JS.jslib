@@ -29,9 +29,6 @@ WX_CloseBLEConnection:function(conf, callbackId) {
 WX_CloseBluetoothAdapter:function(conf, callbackId) {
     window.WXWASMSDK.WX_CloseBluetoothAdapter(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
 },
-WX_CloseSocket:function(conf, callbackId) {
-    window.WXWASMSDK.WX_CloseSocket(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
-},
 WX_CreateBLEConnection:function(conf, callbackId) {
     window.WXWASMSDK.WX_CreateBLEConnection(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
 },
@@ -89,9 +86,6 @@ WX_GetConnectedBluetoothDevices:function(conf, callbackId) {
 WX_GetExtConfig:function(conf, callbackId) {
     window.WXWASMSDK.WX_GetExtConfig(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
 },
-WX_GetFuzzyLocation:function(conf, callbackId) {
-    window.WXWASMSDK.WX_GetFuzzyLocation(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
-},
 WX_GetGameClubData:function(conf, callbackId) {
     window.WXWASMSDK.WX_GetGameClubData(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
 },
@@ -109,6 +103,9 @@ WX_GetLocation:function(conf, callbackId) {
 },
 WX_GetNetworkType:function(conf, callbackId) {
     window.WXWASMSDK.WX_GetNetworkType(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
+},
+WX_GetPrivacySetting:function(conf, callbackId) {
+    window.WXWASMSDK.WX_GetPrivacySetting(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
 },
 WX_GetScreenBrightness:function(conf, callbackId) {
     window.WXWASMSDK.WX_GetScreenBrightness(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
@@ -197,6 +194,9 @@ WX_OpenCustomerServiceChat:function(conf, callbackId) {
 WX_OpenCustomerServiceConversation:function(conf, callbackId) {
     window.WXWASMSDK.WX_OpenCustomerServiceConversation(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
 },
+WX_OpenPrivacyContract:function(conf, callbackId) {
+    window.WXWASMSDK.WX_OpenPrivacyContract(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
+},
 WX_OpenSetting:function(conf, callbackId) {
     window.WXWASMSDK.WX_OpenSetting(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
 },
@@ -233,6 +233,9 @@ WX_RequestSubscribeMessage:function(conf, callbackId) {
 WX_RequestSubscribeSystemMessage:function(conf, callbackId) {
     window.WXWASMSDK.WX_RequestSubscribeSystemMessage(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
 },
+WX_RequirePrivacyAuthorize:function(conf, callbackId) {
+    window.WXWASMSDK.WX_RequirePrivacyAuthorize(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
+},
 WX_RestartMiniProgram:function(conf, callbackId) {
     window.WXWASMSDK.WX_RestartMiniProgram(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
 },
@@ -244,9 +247,6 @@ WX_SaveImageToPhotosAlbum:function(conf, callbackId) {
 },
 WX_ScanCode:function(conf, callbackId) {
     window.WXWASMSDK.WX_ScanCode(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
-},
-WX_SendSocketMessage:function(conf, callbackId) {
-    window.WXWASMSDK.WX_SendSocketMessage(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
 },
 WX_SetBLEMTU:function(conf, callbackId) {
     window.WXWASMSDK.WX_SetBLEMTU(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
@@ -382,6 +382,9 @@ WX_OpenPage:function(conf, callbackId) {
 },
 WX_RequestMidasPaymentGameItem:function(conf, callbackId) {
     window.WXWASMSDK.WX_RequestMidasPaymentGameItem(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
+},
+WX_RequestSubscribeLiveActivity:function(conf, callbackId) {
+    window.WXWASMSDK.WX_RequestSubscribeLiveActivity(_WXPointer_stringify_adaptor(conf), _WXPointer_stringify_adaptor(callbackId));
 },
 
 WX_OperateGameRecorderVideo:function(option){
@@ -594,18 +597,6 @@ WX_OnShow:function() {
 },
 WX_OffShow:function() {
     window.WXWASMSDK.WX_OffShow();
-},
-WX_OnSocketClose:function() {
-    window.WXWASMSDK.WX_OnSocketClose();
-},
-WX_OnSocketError:function() {
-    window.WXWASMSDK.WX_OnSocketError();
-},
-WX_OnSocketMessage:function() {
-    window.WXWASMSDK.WX_OnSocketMessage();
-},
-WX_OnSocketOpen:function() {
-    window.WXWASMSDK.WX_OnSocketOpen();
 },
 WX_OnTouchCancel:function() {
     window.WXWASMSDK.WX_OnTouchCancel();
@@ -945,10 +936,10 @@ WX_FeedbackButtonDestroy:function(id) {
 WX_FeedbackButtonHide:function(id) {
     window.WXWASMSDK.WX_FeedbackButtonHide(_WXPointer_stringify_adaptor(id));
 },
-WX_FeedbackButtonOffTap:function(id){
+WX_FeedbackButtonOffTap:function(id) {
     window.WXWASMSDK.WX_FeedbackButtonOffTap(_WXPointer_stringify_adaptor(id));
 },
-WX_FeedbackButtonOnTap:function(id){
+WX_FeedbackButtonOnTap:function(id) {
     window.WXWASMSDK.WX_FeedbackButtonOnTap(_WXPointer_stringify_adaptor(id));
 },
 WX_FeedbackButtonShow:function(id) {
@@ -984,13 +975,13 @@ WX_RealtimeLogManagerWarn:function(id, args) {
 WX_UpdateManagerApplyUpdate:function(id) {
     window.WXWASMSDK.WX_UpdateManagerApplyUpdate(_WXPointer_stringify_adaptor(id));
 },
-WX_UpdateManagerOnCheckForUpdate:function(id){
+WX_UpdateManagerOnCheckForUpdate:function(id) {
     window.WXWASMSDK.WX_UpdateManagerOnCheckForUpdate(_WXPointer_stringify_adaptor(id));
 },
-WX_UpdateManagerOnUpdateFailed:function(id){
+WX_UpdateManagerOnUpdateFailed:function(id) {
     window.WXWASMSDK.WX_UpdateManagerOnUpdateFailed(_WXPointer_stringify_adaptor(id));
 },
-WX_UpdateManagerOnUpdateReady:function(id){
+WX_UpdateManagerOnUpdateReady:function(id) {
     window.WXWASMSDK.WX_UpdateManagerOnUpdateReady(_WXPointer_stringify_adaptor(id));
 },
 WX_VideoDecoderGetFrameData:function(id) {
@@ -1012,10 +1003,10 @@ WX_VideoDecoderStart:function(id, option) {
 WX_VideoDecoderStop:function(id) {
     window.WXWASMSDK.WX_VideoDecoderStop(_WXPointer_stringify_adaptor(id));
 },
-WX_VideoDecoderOff:function(id, eventName){
+WX_VideoDecoderOff:function(id, eventName) {
     window.WXWASMSDK.WX_VideoDecoderOff(_WXPointer_stringify_adaptor(id), _WXPointer_stringify_adaptor(eventName));
 },
-WX_VideoDecoderOn:function(id, eventName){
+WX_VideoDecoderOn:function(id, eventName) {
     window.WXWASMSDK.WX_VideoDecoderOn(_WXPointer_stringify_adaptor(id), _WXPointer_stringify_adaptor(eventName));
 },
 

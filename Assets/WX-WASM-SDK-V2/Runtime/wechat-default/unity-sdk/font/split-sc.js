@@ -118,6 +118,7 @@ export default function splitTTCToBufferOnlySC(arrayBuffer) {
     
     
     let fontSCHeaderOffset = undefined;
+    const reg = /S\0+C/;
     for (let i = 0; i < ttfCount; i++) {
         
         const tableHeaderOffset = ttc.getUint32(0x0C + i * 4);
@@ -125,7 +126,7 @@ export default function splitTTCToBufferOnlySC(arrayBuffer) {
         
         const familyName = parseFamilyName(ttc, tableHeaderOffset);
         
-        if (typeof familyName === 'string' && familyName.indexOf('SC') >= 0) { 
+        if (typeof familyName === 'string' && reg.test(familyName)) { 
             fontSCHeaderOffset = tableHeaderOffset;
             break;
         }

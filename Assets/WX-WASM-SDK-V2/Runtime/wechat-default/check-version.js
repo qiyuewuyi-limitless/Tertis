@@ -52,7 +52,8 @@ export const isSupportCacheAudio = !isIOS || compareVersion(version, '8.0.31');
 
 export const isSupportInnerAudio = compareVersion(version, '8.0.38');
 
-const isPcBrotliInvalid = isPc && !compareVersion(SDKVersion, '2.32.3');
+
+const isPcBrotliInvalid = isPc && !compareVersion(SDKVersion, $LOAD_DATA_FROM_SUBPACKAGE ? '2.29.2' : '2.32.3');
 const isMobileBrotliInvalid = isMobile && !compareVersion(SDKVersion, '2.21.1');
 
 const isBrotliInvalid = $COMPRESS_DATA_PACKAGE && (isPcBrotliInvalid || isMobileBrotliInvalid);
