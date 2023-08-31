@@ -1,0 +1,8 @@
+RateOverTime: 单位时间发射的粒子数
+RateOverDistance: 单位距离发射的粒子数
+bursts ： 爆发事件
+	Time ：触发爆发事件距离粒子系统执行开始的时间
+	Count: 发射的粒子个数
+	Cycles：爆发次数
+	Interval：爆发之间的时间间隔
+	Probability：每次爆发时，发射粒子的概率

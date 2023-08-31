@@ -1,0 +1,52 @@
+duration: 系统运行时间
+looping：循环
+prewarm: 启用时，粒子系统从模拟一次运行结果开始。
+start delay：系统运行延时，即系统在第几秒开始运行
+start lifetime：粒子初始生命周期
+start speed：粒子初始速度
+start size : 粒子初始大小
+start rotation:粒子初始旋转
+filp rotation: 翻转粒子比例
+start Color：粒子初始颜色 ：
+	color ： 单一颜色
+	Gradient：曲线(渐变)
+		fixed ： 固定(不存在颜色之间的过渡)
+		blend：混合
+	random  between to two colors: 在两种颜色之间随机
+	random  between to two gradient:在两种曲线之间随机
+	random color：随机颜色
+gravity modifier: 重力
+simulation Space : 模拟空间
+	Local 本地
+	World 世界
+	Custom 自定义
+simulation Speed:模拟速度 （系统更新速度）
+delta time ：时间尺度
+	Scaled： 应用Time.scaled
+	Unscaled: 不应用Time.scaled
+Scaling Mode: 缩放模式
+	Hierarchy：应用所有变换
+	Local：仅应用自身变换
+	Shape：不应用变换
+Play on Awake：当挂载的游戏对象激活时，应用粒子系统
+Emitter Velocity: 发射器速度
+	rigidbody ： 应用刚体速度
+	transform ： 应用translate速度
+	custom：自定义速度
+
+Max particles：最大粒子数
+Auto Random Seed: 自动随机种子
+Stop Action： 粒子系统结束时行为
+	None：什么也不做
+	Disable: 禁用当前游戏物体
+	Destory：删除当前游戏物体
+	Callbak：回调当前游戏物体的所有OnParticleSystemStopped回调方法
+Culling Mode : 剔除模式(粒子系统位于渲染摄像机之外)
+	Automatic： 自动
+	Pause and Catch-up：暂停渲染，逻辑继续执行
+	Pause ： 暂停
+	Awalys simulate：总是执行
+Ring Buffer Mode: 环形缓冲模式 （开启时粒子不会被删除，只会被复用)
+	Disabled: 禁用
+	Pause Until Replaced: 暂停直到代替
+	Loop Until Replaced：循环直到代替
